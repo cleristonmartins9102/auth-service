@@ -16,5 +16,9 @@
     "ts-node": "^10.9.2",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "module-alias": "^2.2.3",
+    "path-alias": "^0.0.12"
   }
 }
