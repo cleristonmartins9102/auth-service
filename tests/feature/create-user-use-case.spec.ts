@@ -53,5 +53,14 @@ describe('CreateUserUseCase', () => {
         expect(jwtAdapter.encrypt).toHaveBeenCalled()
         expect(jwtAdapter.encrypt).toHaveBeenCalledWith({ ...createUserStub, password: hashedPassordStub })
       })
+
+      it('should throws error if JwtAdapter.encrypt throw', async () => {
+        jwtAdapter.encrypt.mockImplementationOnce(() => {
+          throw new Error()
+        })
+        const response = sut.create(createUserStub)
+    
+        await expect(response).rejects.toThrow()
+      })
     })
 })
