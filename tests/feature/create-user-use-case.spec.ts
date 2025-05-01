@@ -20,19 +20,21 @@ describe('CreateUserUseCase', () => {
     sut = new CreateUserUseCase(hasher)
   })
 
-  it('should call hasher.hash with correct password', async () => {
-    await sut.create(createUserStub)
-
-    expect(hasher.hash).toHaveBeenCalled()
-    expect(hasher.hash).toHaveBeenCalledWith(createUserStub.password)
-  })
-
-  it('should throws error if hasher.hash throw', async () => {
-    hasher.hash.mockImplementationOnce(() => {
-      throw new Error()
+    describe('Hasher', () => {
+      it('should call hasher.hash with correct password', async () => {
+        await sut.create(createUserStub)
+    
+        expect(hasher.hash).toHaveBeenCalled()
+        expect(hasher.hash).toHaveBeenCalledWith(createUserStub.password)
+      })
+    
+      it('should throws error if hasher.hash throw', async () => {
+        hasher.hash.mockImplementationOnce(() => {
+          throw new Error()
+        })
+        const response = sut.create(createUserStub)
+    
+        await expect(response).rejects.toThrow()
+      })
     })
-    const response = sut.create(createUserStub)
-
-    await expect(response).rejects.toThrow()
-  })
 })
