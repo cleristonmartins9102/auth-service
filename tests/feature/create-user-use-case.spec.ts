@@ -22,4 +22,15 @@ describe('CreateUserUseCase', () => {
     expect(hasher.hash).toHaveBeenCalled()
     expect(hasher.hash).toHaveBeenCalledWith(createUserStub.password)
   })
+
+  it('should throws error if hasher.hash throw', async () => {
+    hasher.hash.mockImplementationOnce(() => {
+      throw new Error()
+    })
+    const sut = new CreateUserUseCase(hasher)
+
+    const response = sut.create(createUserStub)
+
+    await expect(response).rejects.toThrow()
+  })
 })
