@@ -1,7 +1,7 @@
 import mock, { MockProxy } from 'jest-mock-extended/lib/Mock'
 import { faker } from '@faker-js/faker'
 import { CreateUserUseCase } from "@/data/features/create-user-use-case"
-import { Hash } from '@/data/domain'
+import { CreateUser, Hash } from '@/data/domain'
 import { CreateUserModel } from '@/data/model'
 
 const createUserStub: CreateUserModel = {
@@ -14,9 +14,13 @@ const createUserStub: CreateUserModel = {
 
 describe('CreateUserUseCase', () => {
   const hasher = mock<Hash>()
-  it('should call hasher.hash with correct password', async () => {
-    const sut = new CreateUserUseCase(hasher)
+  let sut: CreateUser
 
+  beforeEach(() => {
+    sut = new CreateUserUseCase(hasher)
+  })
+
+  it('should call hasher.hash with correct password', async () => {
     await sut.create(createUserStub)
 
     expect(hasher.hash).toHaveBeenCalled()
@@ -27,8 +31,6 @@ describe('CreateUserUseCase', () => {
     hasher.hash.mockImplementationOnce(() => {
       throw new Error()
     })
-    const sut = new CreateUserUseCase(hasher)
-
     const response = sut.create(createUserStub)
 
     await expect(response).rejects.toThrow()
