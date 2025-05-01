@@ -3,7 +3,7 @@ import { faker } from '@faker-js/faker'
 import crypto from 'crypto'
 
 import { CreateUserUseCase } from "@/data/features/create-user-use-case"
-import { CreateUser, Encrypt, Hash } from '@/data/domain'
+import { CreateUser, Encrypt, Hash, UpdateToken } from '@/data/domain'
 import { CreateUserModel, UserModel } from '@/data/model'
 
 const createUserStub: CreateUserModel = {
@@ -21,6 +21,7 @@ describe('CreateUserUseCase', () => {
   const hasher = mock<Hash>()
   const jwtAdapter = mock<Encrypt<CreateUserModel>>()
   const fsUserRepository = mock<CreateUser>()
+  const updateTokenUseCase = mock<UpdateToken>()
   let sut: CreateUser
   
   const userModel: UserModel = {
@@ -38,7 +39,7 @@ describe('CreateUserUseCase', () => {
   })
 *
   beforeEach(() => {
-    sut = new CreateUserUseCase(hasher, jwtAdapter, fsUserRepository)
+    sut = new CreateUserUseCase(hasher, jwtAdapter, fsUserRepository, updateTokenUseCase)
   })
 
     describe('Hasher', () => {
@@ -85,16 +86,18 @@ describe('CreateUserUseCase', () => {
         expect(fsUserRepository.create).toHaveBeenCalledWith({ ...createUserStub, password: hashedPassordStub, token: fakeToken, refreshToken: fakeRefreshToken })
       })
 
-      it('should call jwtAdapter.encrypt with correct payload and user_id for token', async () => {
+      it('should call UpdateTokenUseCase with correct user data', async () => {
         await sut.create(createUserStub)
-
-        expect(jwtAdapter.encrypt.mock.calls[2][0]).toEqual({ ...createUserStub, password: hashedPassordStub, id: userModel.id })
+    
+        expect(updateTokenUseCase.update).toHaveBeenCalled()
+        expect(updateTokenUseCase.update).toHaveBeenCalledWith(userModel)
       })
 
-      it('should call jwtAdapter.encrypt with correct payload and user_id for refreshToken', async () => {
-        await sut.create(createUserStub)
-
-        expect(jwtAdapter.encrypt.mock.calls[3][0]).toEqual({ ...createUserStub, password: hashedPassordStub, id: userModel.id })
+      it('should throws if UpdateTokeUseCase throw', async () => {
+        updateTokenUseCase.update.mockRejectedValueOnce(new Error(''))
+        const response = sut.create(createUserStub)
+    
+        await expect(response).rejects.toThrow()
       })
     })
 })
