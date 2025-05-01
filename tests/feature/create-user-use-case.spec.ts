@@ -15,17 +15,21 @@ const createUserStub: CreateUserModel = {
 } 
 
 describe('CreateUserUseCase', () => {
+  const fakeToken = crypto.randomBytes(32).toString('hex')
+  const fakeRefreshToken = crypto.randomBytes(32).toString('hex')
   const hashedPassordStub = crypto.createHash('sha256').update(createUserStub.password).digest('hex')
   const hasher = mock<Hash>()
   const jwtAdapter = mock<Encrypt<CreateUserModel>>()
+  const fsUserRepository = mock<CreateUser>()
   let sut: CreateUser
 
   beforeAll(() => {
     hasher.hash.mockReturnValueOnce(hashedPassordStub)
+    jwtAdapter.encrypt.mockReturnValueOnce(fakeToken).mockReturnValueOnce(fakeRefreshToken)
   })
-
+*
   beforeEach(() => {
-    sut = new CreateUserUseCase(hasher, jwtAdapter)
+    sut = new CreateUserUseCase(hasher, jwtAdapter, fsUserRepository)
   })
 
     describe('Hasher', () => {
@@ -47,7 +51,7 @@ describe('CreateUserUseCase', () => {
     })
 
     describe('JwtAdapter', () => {
-      it('should call jwtAdapter.encript with correct payload', async () => {
+      it('should call jwtAdapter.encrypt with correct payload', async () => {
         await sut.create(createUserStub)
     
         expect(jwtAdapter.encrypt).toHaveBeenCalled()
@@ -61,6 +65,15 @@ describe('CreateUserUseCase', () => {
         const response = sut.create(createUserStub)
     
         await expect(response).rejects.toThrow()
+      })
+    })
+
+    describe('FsUserRepository', () => {
+      it('should call FsUserRepository.create with correct user data', async () => {
+        await sut.create(createUserStub)
+    
+        expect(fsUserRepository.create).toHaveBeenCalled()
+        expect(fsUserRepository.create).toHaveBeenCalledWith({ ...createUserStub, password: hashedPassordStub, token: fakeToken, refreshToken: fakeRefreshToken })
       })
     })
 })
