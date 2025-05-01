@@ -36,6 +36,7 @@ describe('CreateUserUseCase', () => {
     hasher.hash.mockReturnValue(hashedPassordStub)
     jwtAdapter.encrypt.mockReturnValueOnce(fakeToken).mockReturnValueOnce(fakeRefreshToken)
     fsUserRepository.create.mockResolvedValue(userModel)
+    updateTokenUseCase.update.mockResolvedValue(userModel)
   })
 *
   beforeEach(() => {
@@ -106,5 +107,11 @@ describe('CreateUserUseCase', () => {
     
         await expect(response).rejects.toThrow()
       })
+    })
+
+    it('should returns the same value received from FsUserRepository.create', async () => {
+      const response = await sut.create(createUserStub)
+  
+      expect(response).toEqual(userModel)
     })
 })
