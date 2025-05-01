@@ -1,4 +1,4 @@
-import mock, { MockProxy } from 'jest-mock-extended/lib/Mock'
+import mock from 'jest-mock-extended/lib/Mock'
 import { faker } from '@faker-js/faker'
 import crypto from 'crypto'
 
@@ -32,7 +32,7 @@ describe('CreateUserUseCase', () => {
   }
 
   beforeAll(() => {
-    hasher.hash.mockReturnValueOnce(hashedPassordStub)
+    hasher.hash.mockReturnValue(hashedPassordStub)
     jwtAdapter.encrypt.mockReturnValueOnce(fakeToken).mockReturnValueOnce(fakeRefreshToken)
     fsUserRepository.create.mockResolvedValue(userModel)
   })
@@ -83,6 +83,18 @@ describe('CreateUserUseCase', () => {
     
         expect(fsUserRepository.create).toHaveBeenCalled()
         expect(fsUserRepository.create).toHaveBeenCalledWith({ ...createUserStub, password: hashedPassordStub, token: fakeToken, refreshToken: fakeRefreshToken })
+      })
+
+      it('should call jwtAdapter.encrypt with correct payload and user_id for token', async () => {
+        await sut.create(createUserStub)
+
+        expect(jwtAdapter.encrypt.mock.calls[2][0]).toEqual({ ...createUserStub, password: hashedPassordStub, id: userModel.id })
+      })
+
+      it('should call jwtAdapter.encrypt with correct payload and user_id for refreshToken', async () => {
+        await sut.create(createUserStub)
+
+        expect(jwtAdapter.encrypt.mock.calls[3][0]).toEqual({ ...createUserStub, password: hashedPassordStub, id: userModel.id })
       })
     })
 })
