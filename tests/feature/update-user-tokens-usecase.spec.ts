@@ -33,5 +33,14 @@ describe('UpdateUserTokensUseCase', () => {
       expect(jwtAdapter.encrypt.mock.calls[0][0]).toEqual(userModel)
       expect(jwtAdapter.encrypt.mock.calls[1][0]).toEqual(userModel)
     })
+
+    it('should throws if jwtAdapter.encrypt throw', async () => {
+      jwtAdapter.encrypt.mockImplementationOnce(() => {
+        throw new Error()
+      })
+      const response = sut.update(userModel)
+
+      await expect(response).rejects.toThrow()
+    })
   })
 })
