@@ -1,10 +1,10 @@
 import mock from 'jest-mock-extended/lib/Mock'
 import crypto from 'crypto'
 
-import { CreateUserUseCase } from "@/data/features/create-user-use-case"
+import { CreateUserUseCase } from "@/data/features/create-user-usecase"
 import { CreateUser, Encrypt, Hash, UpdateToken } from '@/data/domain'
 import { CreateUserModel } from '@/data/model'
-import { makeCreateUserStub, makeUserModelStub } from '../../tests/stubs'
+import { makeCreateUserStub, makeUserModelStub } from '../stubs'
 
 const createUserStub = makeCreateUserStub()
 
