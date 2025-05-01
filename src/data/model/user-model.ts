@@ -12,7 +12,7 @@ export class CreateUserRepositoryModel extends CreateUserModel {
   password!: string
 }
 
-export class UserModel extends CreateUserModel {
+export class UserModel extends CreateUserRepositoryModel {
   id!: number
   created_at!: Date
 }
