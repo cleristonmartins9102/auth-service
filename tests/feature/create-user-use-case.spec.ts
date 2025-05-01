@@ -1,18 +1,12 @@
 import mock from 'jest-mock-extended/lib/Mock'
-import { faker } from '@faker-js/faker'
 import crypto from 'crypto'
 
 import { CreateUserUseCase } from "@/data/features/create-user-use-case"
 import { CreateUser, Encrypt, Hash, UpdateToken } from '@/data/domain'
-import { CreateUserModel, UserModel } from '@/data/model'
+import { CreateUserModel } from '@/data/model'
+import { makeCreateUserStub, makeUserModelStub } from '../../tests/stubs'
 
-const createUserStub: CreateUserModel = {
-  name: faker.person.firstName(),
-  email: faker.internet.email(),
-  password: faker.internet.password(),
-  countryDialCode: '+44',
-  phoneNumber: faker.phone.number()
-}
+const createUserStub = makeCreateUserStub()
 
 describe('CreateUserUseCase', () => {
   const fakeToken = crypto.randomBytes(32).toString('hex')
@@ -24,13 +18,7 @@ describe('CreateUserUseCase', () => {
   const updateTokenUseCase = mock<UpdateToken>()
   let sut: CreateUser
   
-  const userModel: UserModel = {
-    id: 1,
-    ...createUserStub,
-    token: fakeToken,
-    refreshToken: fakeRefreshToken,
-    created_at: new Date()
-  }
+  const userModel = makeUserModelStub(createUserStub, fakeToken, fakeRefreshToken)
 
   beforeAll(() => {
     hasher.hash.mockReturnValue(hashedPassordStub)
@@ -38,7 +26,7 @@ describe('CreateUserUseCase', () => {
     fsUserRepository.create.mockResolvedValue(userModel)
     updateTokenUseCase.update.mockResolvedValue(userModel)
   })
-*
+
   beforeEach(() => {
     sut = new CreateUserUseCase(hasher, jwtAdapter, fsUserRepository, updateTokenUseCase)
   })
