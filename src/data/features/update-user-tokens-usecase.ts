@@ -14,6 +14,6 @@ export class UpdateUserTokensUseCase implements UpdateToken {
   async update(payload: UserModel): Promise<UserModel> {
     const token = this.jwtAdapter.encrypt(payload)
     const refreshToken = this.jwtAdapter.encrypt(payload)
-    return '' as any
+    return { ...payload, token, refreshToken }
   }
 }
