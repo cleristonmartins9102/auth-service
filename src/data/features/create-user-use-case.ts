@@ -19,7 +19,7 @@ export class CreateUserUseCase implements CreateUser {
     let token = this.jwtAdapter.encrypt({ ...params, password: hashedPassword })
     let refreshToken = this.jwtAdapter.encrypt({ ...params, password: hashedPassword })
     const userModel = await this.fsUserRepository.create({ ...params, password: hashedPassword, token, refreshToken })
-    await this.updateTokenUseCase.update(userModel)
-    return '' as any
+    const response = await this.updateTokenUseCase.update(userModel)
+    return response
   }
 }
