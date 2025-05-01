@@ -86,6 +86,13 @@ describe('CreateUserUseCase', () => {
         expect(fsUserRepository.create).toHaveBeenCalledWith({ ...createUserStub, password: hashedPassordStub, token: fakeToken, refreshToken: fakeRefreshToken })
       })
 
+      it('should throws if FsUserRepository throw', async () => {
+        fsUserRepository.create.mockRejectedValueOnce(new Error(''))
+        const response = sut.create(createUserStub)
+    
+        await expect(response).rejects.toThrow()
+      })
+
       it('should call UpdateTokenUseCase with correct user data', async () => {
         await sut.create(createUserStub)
     
