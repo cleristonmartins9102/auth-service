@@ -7,40 +7,53 @@ import { makeCreateUserStub, makeUserModelStub } from '../stubs'
 import { UpdateUserTokensUseCase } from '@/data/features'
 
 const createUserStub = makeCreateUserStub()
+const fakeToken = crypto.randomBytes(32).toString('hex')
+const fakeRefreshToken = crypto.randomBytes(32).toString('hex')
+const userModel = makeUserModelStub(createUserStub, fakeToken, fakeRefreshToken)
 
 describe('UpdateUserTokensUseCase', () => {
-  const fakeToken = crypto.randomBytes(32).toString('hex')
-  const fakeRefreshToken = crypto.randomBytes(32).toString('hex')
   const jwtAdapter = mock<Encrypt<CreateUserModel>>()
   const fsUserRepository = mock<UpdateUserRepository>()
   let sut: UpdateToken
 
-  const userModel = makeUserModelStub(createUserStub, fakeToken, fakeRefreshToken)
-
-  beforeAll(() => {
-    jwtAdapter.encrypt.mockReturnValueOnce(fakeToken).mockReturnValueOnce(fakeRefreshToken)
-    fsUserRepository.update.mockResolvedValue(userModel)
-  })
-
   beforeEach(() => {
-    sut = new UpdateUserTokensUseCase(jwtAdapter, fsUserRepository)
+    jest.clearAllMocks()
+    fsUserRepository.update.mockResolvedValue(userModel)
   })
 
   describe('JwtAdapter', () => {
     it('should call jwtAdapter.encrypt with correct payload', async () => {
+      jwtAdapter.encrypt
+        .mockReturnValueOnce(fakeToken)
+        .mockReturnValueOnce(fakeRefreshToken)
+
+      sut = new UpdateUserTokensUseCase(jwtAdapter, fsUserRepository)
+
       await sut.update(userModel)
 
       expect(jwtAdapter.encrypt.mock.calls[0][0]).toEqual(userModel)
       expect(jwtAdapter.encrypt.mock.calls[1][0]).toEqual(userModel)
     })
 
-    it('should throws if jwtAdapter.encrypt throw', async () => {
+    it('should throw if jwtAdapter.encrypt throws', async () => {
       jwtAdapter.encrypt.mockImplementationOnce(() => {
-        throw new Error()
+        throw new Error('encrypt failed')
       })
-      const response = sut.update(userModel)
 
-      await expect(response).rejects.toThrow()
+      sut = new UpdateUserTokensUseCase(jwtAdapter, fsUserRepository)
+      
+      await expect(sut.update(userModel)).rejects.toThrow('encrypt failed')
+    })
+
+    it('should return values with updated token and refreshToken', async () => {
+      jwtAdapter.encrypt
+        .mockReturnValueOnce(fakeToken)
+        .mockReturnValueOnce(fakeRefreshToken)
+
+      sut = new UpdateUserTokensUseCase(jwtAdapter, fsUserRepository)
+      const response = await sut.update(userModel)
+
+      expect(response).toEqual({ ...userModel, token: fakeToken, refreshToken: fakeRefreshToken })
     })
   })
 })
