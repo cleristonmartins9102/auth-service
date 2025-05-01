@@ -4,7 +4,7 @@ import crypto from 'crypto'
 
 import { CreateUserUseCase } from "@/data/features/create-user-use-case"
 import { CreateUser, Encrypt, Hash } from '@/data/domain'
-import { CreateUserModel } from '@/data/model'
+import { CreateUserModel, UserModel } from '@/data/model'
 
 const createUserStub: CreateUserModel = {
   name: faker.person.firstName(),
@@ -12,7 +12,7 @@ const createUserStub: CreateUserModel = {
   password: faker.internet.password(),
   countryDialCode: '+44',
   phoneNumber: faker.phone.number()
-} 
+}
 
 describe('CreateUserUseCase', () => {
   const fakeToken = crypto.randomBytes(32).toString('hex')
@@ -22,10 +22,19 @@ describe('CreateUserUseCase', () => {
   const jwtAdapter = mock<Encrypt<CreateUserModel>>()
   const fsUserRepository = mock<CreateUser>()
   let sut: CreateUser
+  
+  const userModel: UserModel = {
+    id: 1,
+    ...createUserStub,
+    token: fakeToken,
+    refreshToken: fakeRefreshToken,
+    created_at: new Date()
+  }
 
   beforeAll(() => {
     hasher.hash.mockReturnValueOnce(hashedPassordStub)
     jwtAdapter.encrypt.mockReturnValueOnce(fakeToken).mockReturnValueOnce(fakeRefreshToken)
+    fsUserRepository.create.mockResolvedValue(userModel)
   })
 *
   beforeEach(() => {
@@ -68,7 +77,7 @@ describe('CreateUserUseCase', () => {
       })
     })
 
-    describe('FsUserRepository', () => {
+    describe('Persisting user and updating token and refresh token after id is provided', () => {
       it('should call FsUserRepository.create with correct user data', async () => {
         await sut.create(createUserStub)
     
