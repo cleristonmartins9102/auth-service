@@ -27,6 +27,7 @@ export class GenerateTokenController extends Controller<JSONType, string> {
   buildValidator(): Contracts.Validation {
     return BuildValidator.object({
       name: BuildValidator.string(),
+      surname: BuildValidator.string(),
       email: BuildValidator.email()
     }) as any
   }
