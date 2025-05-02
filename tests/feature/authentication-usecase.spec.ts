@@ -1,3 +1,4 @@
+import { UserNotFoundError } from "@/application/errors/errors"
 import { GetUserByEmail } from "@/data/domain"
 import { AuthenticationUseCase } from "@/data/features"
 import { faker } from "@faker-js/faker/."
@@ -17,5 +18,14 @@ describe('AuthenticationUseCase', () => {
 
     expect(userService.getByEmail).toHaveBeenCalled()
     expect(userService.getByEmail).toHaveBeenCalledWith(credentials.email)
+  })
+
+  it('should returns error UserNotFoundError if UserService returns null', async () => {
+    userService.getByEmail.mockResolvedValueOnce(null)
+    const sut = new AuthenticationUseCase(userService)
+
+    const response = sut.auth(credentials)
+
+    await expect(response).rejects.toThrow(UserNotFoundError)
   })
 })
