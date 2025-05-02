@@ -21,4 +21,16 @@ describe('JwtAdapter', () => {
     expect(spy).toHaveBeenCalled()
     expect(spy).toHaveBeenCalledWith('mockedBuffer', '123456')
   })
+
+  it('should return the same value received from jsonwebtoken.sign', () => {
+    const spy = jest.spyOn(jsonwebtoken, 'sign')
+    spy.mockReturnValueOnce('mockedToken' as any)
+    const bufferSpy = jest.spyOn(Buffer, 'from')
+    bufferSpy.mockReturnValueOnce('mockedBuffer' as any)
+    const sut = new JwtAdapter()
+
+    const response = sut.encrypt(payload)
+
+    expect(response).toBe('mockedToken')
+  })
 })
