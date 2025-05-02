@@ -28,4 +28,13 @@ describe('AuthenticationUseCase', () => {
 
     await expect(response).rejects.toThrow(UserNotFoundError)
   })
+
+  it('should returns thow if UserService thows', async () => {
+    userService.getByEmail.mockRejectedValueOnce(new Error())
+    const sut = new AuthenticationUseCase(userService)
+
+    const response = sut.auth(credentials)
+
+    await expect(response).rejects.toThrow()
+  })
 })
