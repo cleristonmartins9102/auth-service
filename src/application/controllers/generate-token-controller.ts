@@ -29,7 +29,8 @@ export class GenerateTokenController extends Controller<JSONType, string> {
       name: BuildValidator.string(),
       surname: BuildValidator.string(),
       email: BuildValidator.email(),
-      countryDialCode: BuildValidator.string()
+      countryDialCode: BuildValidator.string(),
+      phoneNumber: BuildValidator.string()
     }) as any
   }
 }
