@@ -8,26 +8,28 @@ describe('JwtAdapter', () => {
   const payload = { 
     name: faker.person.firstName()
   }
+  const jsonwebtokenSpy = jest.spyOn(jsonwebtoken, 'sign')
 
+  beforeAll(() => {
+    jsonwebtokenSpy.mockReturnValue('mockedToken' as any)
+  })
+  
   beforeEach(() => {
     process.env.SECRET_KEY = '123456'
   })
   
   it('should call jsonwebtoken.sign with correct values', () => {
-    const spy = jest.spyOn(jsonwebtoken, 'sign')
     const bufferSpy = jest.spyOn(Buffer, 'from')
     bufferSpy.mockReturnValueOnce('mockedBuffer' as any)
     const sut = new JwtAdapter()
 
     sut.encrypt(payload)
 
-    expect(spy).toHaveBeenCalled()
-    expect(spy).toHaveBeenCalledWith('mockedBuffer', '123456')
+    expect(jsonwebtokenSpy).toHaveBeenCalled()
+    expect(jsonwebtokenSpy).toHaveBeenCalledWith('mockedBuffer', '123456', { expiresIn: 3600 })
   })
 
   it('should return the same value received from jsonwebtoken.sign', () => {
-    const spy = jest.spyOn(jsonwebtoken, 'sign')
-    spy.mockReturnValueOnce('mockedToken' as any)
     const bufferSpy = jest.spyOn(Buffer, 'from')
     bufferSpy.mockReturnValueOnce('mockedBuffer' as any)
     const sut = new JwtAdapter()
@@ -39,8 +41,7 @@ describe('JwtAdapter', () => {
 
   it('should return NoSecretFoundError if SECRET_KEY not found', () => {
     delete process.env.SECRET_KEY
-    const spy = jest.spyOn(jsonwebtoken, 'sign')
-    spy.mockReturnValueOnce('mockedToken' as any)
+ 
     const bufferSpy = jest.spyOn(Buffer, 'from')
     bufferSpy.mockReturnValueOnce('mockedBuffer' as any)
     const sut = new JwtAdapter()
@@ -55,8 +56,7 @@ describe('JwtAdapter', () => {
   })
 
   it('should return JwtAdapterError if jsonwebtoken.sign throws', () => {
-    const spy = jest.spyOn(jsonwebtoken, 'sign')
-    spy.mockImplementationOnce(() => {
+    jsonwebtokenSpy.mockImplementationOnce(() => {
       throw new Error()
     })
     const bufferSpy = jest.spyOn(Buffer, 'from')
@@ -69,6 +69,6 @@ describe('JwtAdapter', () => {
     } catch(err) {
       error = err
     }
-    expect((error as any).constructor.name).toBe('NoSecretFoundError')
+    expect((error as any).constructor.name).toBe('JwtAdapterError')
   })
 })
