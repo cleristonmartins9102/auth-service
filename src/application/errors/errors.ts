@@ -4,3 +4,10 @@ export class NoSecretFoundError extends Error {
     this.name = 'NoSecretFoundError'
   }
 }
+
+export class JwtAdapterError extends Error {
+  constructor (error: Error) {
+    super(error.message)
+    this.name = 'JwtAdapterError'
+  }
+}
