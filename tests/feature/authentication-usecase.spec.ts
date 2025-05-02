@@ -1,7 +1,7 @@
 import mock from "jest-mock-extended/lib/Mock"
 import { faker } from "@faker-js/faker/."
 
-import { UserNotFoundError } from "@/application/errors/errors"
+import { UserNotFoundError, WrongPasswordError } from "@/application/errors/errors"
 import { Auth, Compare, GetUserByEmail } from "@/data/domain"
 import { AuthenticationUseCase } from "@/data/features"
 import { makeCreateUserStub, makeUserModelStub } from "../../tests/stubs"
@@ -19,6 +19,7 @@ describe('AuthenticationUseCase', () => {
 
   beforeAll(() => {
     userService.getByEmail.mockResolvedValue(mockedUser)
+    bcryptAdapter.compare.mockResolvedValue(true)
   })
 
   beforeEach(() => {
@@ -53,5 +54,12 @@ describe('AuthenticationUseCase', () => {
 
     expect(bcryptAdapter.compare).toHaveBeenCalled()
     expect(bcryptAdapter.compare).toHaveBeenCalledWith(credentials.password, mockedUser.password)
+  })
+
+  it('should throws WrongPasswordError if bcrypt.compare returns false', async () => {
+    bcryptAdapter.compare.mockResolvedValueOnce(false)
+    const response = sut.auth(credentials)
+
+    await expect(response).rejects.toThrow(WrongPasswordError)
   })
 })
