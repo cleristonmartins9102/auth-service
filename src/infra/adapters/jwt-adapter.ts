@@ -6,7 +6,7 @@ import { Encrypt } from "@/data/domain"
 export class JwtAdapter implements Encrypt<JSONType> {
   encrypt (payload: JSONType): string {
     const secretKey = process.env.SECRET_KEY!
-    if (secretKey === undefined) throw new NoSecretFoundError()
+    if (undefined === secretKey) throw new NoSecretFoundError()
       try {
         return jsonwebtoken.sign(Buffer.from(JSON.stringify(payload)), secretKey) 
       } catch (error) {
