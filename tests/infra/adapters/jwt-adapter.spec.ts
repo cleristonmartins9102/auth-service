@@ -19,19 +19,15 @@ describe('JwtAdapter', () => {
   })
   
   it('should call jsonwebtoken.sign with correct values', () => {
-    const bufferSpy = jest.spyOn(Buffer, 'from')
-    bufferSpy.mockReturnValueOnce('mockedBuffer' as any)
     const sut = new JwtAdapter()
 
     sut.encrypt(payload)
 
     expect(jsonwebtokenSpy).toHaveBeenCalled()
-    expect(jsonwebtokenSpy).toHaveBeenCalledWith('mockedBuffer', '123456', { expiresIn: 3600 })
+    expect(jsonwebtokenSpy).toHaveBeenCalledWith(payload, '123456', { expiresIn: '1h' })
   })
 
   it('should return the same value received from jsonwebtoken.sign', () => {
-    const bufferSpy = jest.spyOn(Buffer, 'from')
-    bufferSpy.mockReturnValueOnce('mockedBuffer' as any)
     const sut = new JwtAdapter()
 
     const response = sut.encrypt(payload)
@@ -41,9 +37,6 @@ describe('JwtAdapter', () => {
 
   it('should return NoSecretFoundError if SECRET_KEY not found', () => {
     delete process.env.SECRET_KEY
- 
-    const bufferSpy = jest.spyOn(Buffer, 'from')
-    bufferSpy.mockReturnValueOnce('mockedBuffer' as any)
     const sut = new JwtAdapter()
     
     let error = null
@@ -59,8 +52,6 @@ describe('JwtAdapter', () => {
     jsonwebtokenSpy.mockImplementationOnce(() => {
       throw new Error()
     })
-    const bufferSpy = jest.spyOn(Buffer, 'from')
-    bufferSpy.mockReturnValueOnce('mockedBuffer' as any)
     const sut = new JwtAdapter()
     
     let error = null

@@ -8,7 +8,7 @@ export class JwtAdapter implements Encrypt<JSONType> {
     const secretKey = process.env.SECRET_KEY!
     if (undefined === secretKey) throw new NoSecretFoundError()
       try {
-        return jsonwebtoken.sign(Buffer.from(JSON.stringify(payload)), secretKey, { expiresIn: 3600 }) 
+        return jsonwebtoken.sign(payload as object, secretKey, { expiresIn: '1h' }) 
       } catch (error) {
         throw new JwtAdapterError(error as Error)
       }
