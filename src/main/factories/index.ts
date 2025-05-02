@@ -1,0 +1,1 @@
+export * from './controllers/generate-token-controller-factory'
