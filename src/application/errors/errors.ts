@@ -11,3 +11,9 @@ export class JwtAdapterError extends Error {
     this.name = 'JwtAdapterError'
   }
 }
+export class UserNotFoundError extends Error {
+  constructor (fieldName: string, value: string) {
+    super(`User not found with ${fieldName} ${value}`)
+    this.name = 'UserNotFoundError'
+  }
+}
