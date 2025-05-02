@@ -17,4 +17,14 @@ describe('BcryptAdapter', () => {
     expect(spy).toHaveBeenCalled()
     expect(spy).toHaveBeenCalledWith(fakePassword, 10)
   })
+
+  it('should returns the same value received from bcrypt.hash', () => {
+    const spy = jest.spyOn(bcrypt, 'hash') as any
+    spy.mockReturnValueOnce('hashedValue')
+    const sut = new BcryptAdapter()
+
+    const response = sut.hash(fakePassword)
+
+    expect(response).toBe('hashedValue')
+  })
 })
