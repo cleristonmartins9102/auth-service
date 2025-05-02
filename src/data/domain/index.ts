@@ -1,2 +1,4 @@
 export * from './hash'
 export * from './encrypt'
+export * from './auth'
+export * from './get-user-by-email'
