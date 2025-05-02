@@ -2,26 +2,30 @@ import mock from "jest-mock-extended/lib/Mock"
 import { faker } from "@faker-js/faker/."
 
 import { UserNotFoundError } from "@/application/errors/errors"
-import { GetUserByEmail } from "@/data/domain"
+import { Auth, Compare, GetUserByEmail } from "@/data/domain"
 import { AuthenticationUseCase } from "@/data/features"
 import { makeCreateUserStub, makeUserModelStub } from "../../tests/stubs"
 
 describe('AuthenticationUseCase', () => {
   const userService = mock<GetUserByEmail>()
+  const bcryptAdapter = mock<Compare>()
   const createUser = makeCreateUserStub()
   const mockedUser = makeUserModelStub(createUser, 't', 'r')
   const credentials = {
     email: faker.internet.email(),
     password: faker.internet.password()
   }
+  let sut: Auth
 
   beforeAll(() => {
     userService.getByEmail.mockResolvedValue(mockedUser)
   })
 
-  it('should call UserService.getUserByEmail with correct email', async () => {
-    const sut = new AuthenticationUseCase(userService)
+  beforeEach(() => {
+    sut = new AuthenticationUseCase(userService, bcryptAdapter)
+  })
 
+  it('should call UserService.getUserByEmail with correct email', async () => {
     await sut.auth(credentials)
 
     expect(userService.getByEmail).toHaveBeenCalled()
@@ -30,7 +34,6 @@ describe('AuthenticationUseCase', () => {
 
   it('should returns error UserNotFoundError if UserService returns null', async () => {
     userService.getByEmail.mockResolvedValueOnce(null)
-    const sut = new AuthenticationUseCase(userService)
 
     const response = sut.auth(credentials)
 
@@ -39,18 +42,16 @@ describe('AuthenticationUseCase', () => {
 
   it('should returns thow if UserService thows', async () => {
     userService.getByEmail.mockRejectedValueOnce(new Error())
-    const sut = new AuthenticationUseCase(userService)
 
     const response = sut.auth(credentials)
 
     await expect(response).rejects.toThrow()
   })
 
-  it('should returns the same value received from UserService', async () => {
-    const sut = new AuthenticationUseCase(userService)
+  it('should call Bcrypt.compare with correct values ', async () => {
+    await sut.auth(credentials)
 
-    const response = await sut.auth(credentials)
-
-    expect(response).toEqual(mockedUser)
+    expect(bcryptAdapter.compare).toHaveBeenCalled()
+    expect(bcryptAdapter.compare).toHaveBeenCalledWith(credentials.password, mockedUser.password)
   })
 })
