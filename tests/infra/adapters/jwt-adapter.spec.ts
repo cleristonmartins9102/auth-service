@@ -33,4 +33,21 @@ describe('JwtAdapter', () => {
 
     expect(response).toBe('mockedToken')
   })
+
+  it('should return NoSecretFoundError if SECRET_KEY not found', () => {
+    delete process.env.SECRET_KEY
+    const spy = jest.spyOn(jsonwebtoken, 'sign')
+    spy.mockReturnValueOnce('mockedToken' as any)
+    const bufferSpy = jest.spyOn(Buffer, 'from')
+    bufferSpy.mockReturnValueOnce('mockedBuffer' as any)
+    const sut = new JwtAdapter()
+    
+    let error = null
+    try {
+      sut.encrypt(payload)
+    } catch(err) {
+      error = err
+    }
+    expect((error as any).constructor.name).toBe('NoSecretFoundError')
+  })
 })
