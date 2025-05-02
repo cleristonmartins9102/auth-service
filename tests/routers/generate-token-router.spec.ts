@@ -38,4 +38,18 @@ describe('Generate Token Router', () => {
         ])
       )
   })
+
+  it('should returns 400 if missing param countryDialCode', async () => {
+    const httpResponse = await request(createApp())
+      .post('/api/token')
+      .send({})
+      .expect(400)
+      expect(httpResponse.body.errors).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path: expect.arrayContaining(['countryDialCode'])
+          })
+        ])
+      )
+  })
 })
