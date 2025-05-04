@@ -6,7 +6,7 @@ import { Auth, Decrypt, Compare, GetUserByEmail } from "@/data/domain"
 import { AuthenticationUseCase } from "@/data/features"
 import { makeCreateUserStub, makeUserModelStub } from "../../tests/stubs"
 import { GetCredentialsByEmail } from "@/data/domain/get-credentials-by-email"
-import { CredentialsModel } from "@/data/model"
+import { CredentialsModel, UserModel } from "@/data/model"
 
 
 const credentialModel: CredentialsModel = {
@@ -22,7 +22,7 @@ describe('AuthenticationUseCase', () => {
   const userService = mock<GetUserByEmail>()
   const fsCredentialsRepository = mock<GetCredentialsByEmail>()
   const bcryptAdapter = mock<Compare>()
-  const jwtAdapter = mock<Decrypt<CredentialsModel>>()
+  const jwtAdapter = mock<Decrypt<UserModel & { iat: number }>>()
   const createUser = makeCreateUserStub()
   const mockedUser = makeUserModelStub(createUser, 't', 'r')
   const credentials = {
@@ -36,6 +36,7 @@ describe('AuthenticationUseCase', () => {
     userService.getByEmail.mockResolvedValue(mockedUser)
     bcryptAdapter.compare.mockResolvedValue(true)
     fsCredentialsRepository.getByEmail.mockResolvedValue(credentialModel)
+    jwtAdapter.decrypt.mockReturnValue({...mockedUser, iat: 3333, })
   })
 
   beforeEach(() => {
@@ -87,5 +88,11 @@ describe('AuthenticationUseCase', () => {
 
     expect(jwtAdapter.decrypt).toHaveBeenCalled()
     expect(jwtAdapter.decrypt).toHaveBeenCalledWith(credentialModel.token)
+  })
+
+  it('should returns the correct value', async () => {
+    const response = await sut.auth(credentials)
+
+    expect(response).toEqual({ token: credentialModel.token, refreshToken: credentialModel.refreshToken, payload: { ...mockedUser, iat: 3333, } })
   })
 })
