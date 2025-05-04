@@ -1,13 +1,15 @@
 import mock from "jest-mock-extended/lib/Mock"
 import { faker } from "@faker-js/faker/."
 
-import { UserNotFoundError, WrongPasswordError } from "@/application/errors/errors"
+import { CredentialsNotFoundError, WrongPasswordError } from "@/application/errors/errors"
 import { Auth, Compare, GetUserByEmail } from "@/data/domain"
 import { AuthenticationUseCase } from "@/data/features"
 import { makeCreateUserStub, makeUserModelStub } from "../../tests/stubs"
+import { GetCredentialsByEmail } from "@/data/domain/get-credentials-by-email"
 
 describe('AuthenticationUseCase', () => {
   const userService = mock<GetUserByEmail>()
+  const fsCredentialsRepository = mock<GetCredentialsByEmail>()
   const bcryptAdapter = mock<Compare>()
   const createUser = makeCreateUserStub()
   const mockedUser = makeUserModelStub(createUser, 't', 'r')
@@ -18,31 +20,32 @@ describe('AuthenticationUseCase', () => {
   let sut: Auth
 
   beforeAll(() => {
+    fsCredentialsRepository.getByEmail.mockResolvedValue(mockedUser)
     userService.getByEmail.mockResolvedValue(mockedUser)
     bcryptAdapter.compare.mockResolvedValue(true)
   })
 
   beforeEach(() => {
-    sut = new AuthenticationUseCase(userService, bcryptAdapter)
+    sut = new AuthenticationUseCase(fsCredentialsRepository, userService, bcryptAdapter)
   })
 
-  it('should call UserService.getUserByEmail with correct email', async () => {
+  it('should call FsCredentialsRepository with correct email', async () => {
     await sut.auth(credentials)
 
-    expect(userService.getByEmail).toHaveBeenCalled()
-    expect(userService.getByEmail).toHaveBeenCalledWith(credentials.email)
+    expect(fsCredentialsRepository.getByEmail).toHaveBeenCalled()
+    expect(fsCredentialsRepository.getByEmail).toHaveBeenCalledWith(credentials.email)
   })
 
-  it('should returns error UserNotFoundError if UserService returns null', async () => {
-    userService.getByEmail.mockResolvedValueOnce(null)
+  it('should returns error CredentialsNotFoundError if FsCredentialsRepository returns null', async () => {
+    fsCredentialsRepository.getByEmail.mockResolvedValueOnce(null)
 
     const response = sut.auth(credentials)
 
-    await expect(response).rejects.toThrow(UserNotFoundError)
+    await expect(response).rejects.toThrow(CredentialsNotFoundError)
   })
 
-  it('should returns thow if UserService thows', async () => {
-    userService.getByEmail.mockRejectedValueOnce(new Error())
+  it('should returns thow if CredentialsNotFoundError thows', async () => {
+    fsCredentialsRepository.getByEmail.mockRejectedValueOnce(new Error())
 
     const response = sut.auth(credentials)
 
