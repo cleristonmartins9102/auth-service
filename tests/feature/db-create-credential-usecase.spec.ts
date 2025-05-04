@@ -37,4 +37,16 @@ describe('CreateCredential', () => {
       password: mockedUser.password
     })
   })
+
+  it('should returns correct value', async () => {
+    const sut = new DbCreateCredentialUsecase(jtwAdapter, fsCredentialRepository)
+
+    const response = await sut.create(mockedUser)
+
+    expect(response).toEqual({
+      token: 'generatedToken',
+      refreshToken: 'generatedToken',
+      payload: mockedUser
+    })
+  })
 })
