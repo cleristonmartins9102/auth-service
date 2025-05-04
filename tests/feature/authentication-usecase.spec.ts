@@ -4,19 +4,11 @@ import { faker } from "@faker-js/faker/."
 import { CredentialsNotFoundError, WrongPasswordError } from "@/application/errors/errors"
 import { Auth, Decrypt, Compare, GetUserByEmail } from "@/data/domain"
 import { AuthenticationUseCase } from "@/data/features"
-import { makeCreateUserStub, makeUserModelStub } from "../../tests/stubs"
+import { makeCreateUserStub, makeCredentialsStub, makeUserModelStub } from "../../tests/stubs"
 import { GetCredentialsByEmail } from "@/data/domain/get-credentials-by-email"
-import { CredentialsModel, UserModel } from "@/data/model"
+import { UserModel } from "@/data/model"
 
-
-const credentialModel: CredentialsModel = {
-  email: faker.internet.email(),
-  token: faker.database.mongodbObjectId(),
-  refreshToken: faker.database.mongodbObjectId(),
-  password: faker.internet.password(),
-  id: 1,
-  created_at: new Date()
-}
+const credentialModel = makeCredentialsStub()
 
 describe('AuthenticationUseCase', () => {
   const userService = mock<GetUserByEmail>()

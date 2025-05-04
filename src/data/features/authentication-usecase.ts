@@ -1,6 +1,6 @@
 import { CredentialsNotFoundError, WrongPasswordError } from "@/application/errors/errors";
 import { Auth, Compare, Decrypt, GetUserByEmail, GetCredentialsByEmail } from "@/data/domain";
-import { CredentialsModel, UserModel } from "@/data/model";
+import { UserModel } from "@/data/model";
 
 export class AuthenticationUseCase implements Auth {
   constructor (
