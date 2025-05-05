@@ -36,7 +36,8 @@ describe('CreateCredential', () => {
       token: 'generatedToken',
       refreshToken: 'generatedToken',
       email: mockedUser.email,
-      password: 'hashedValue'
+      password: 'hashedValue',
+      phoneVerified: false
     })
   })
 

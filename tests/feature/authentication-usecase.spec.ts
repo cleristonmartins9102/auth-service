@@ -17,6 +17,7 @@ describe('AuthenticationUseCase', () => {
   const jwtAdapter = mock<Decrypt<UserModel & { iat: number }>>()
   const createUser = makeCreateUserStub()
   const mockedUser = makeUserModelStub(createUser, 't', 'r')
+  const credentialsStub = makeCredentialsStub()
   const credentials = {
     email: faker.internet.email(),
     password: faker.internet.password()
@@ -24,7 +25,7 @@ describe('AuthenticationUseCase', () => {
   let sut: Auth
 
   beforeAll(() => {
-    fsCredentialsRepository.getByEmail.mockResolvedValue(mockedUser)
+    fsCredentialsRepository.getByEmail.mockResolvedValue(credentialsStub)
     userService.getByEmail.mockResolvedValue(mockedUser)
     bcryptAdapter.compare.mockResolvedValue(true)
     fsCredentialsRepository.getByEmail.mockResolvedValue(credentialModel)

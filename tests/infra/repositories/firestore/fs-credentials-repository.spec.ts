@@ -37,12 +37,8 @@ describe('FsCredentialRepository', () => {
     const error = new Error('Firestore failed')
     mockAdd.mockRejectedValueOnce(error)
 
-    const spy = jest.spyOn(console, 'log').mockImplementation(() => {})
+    const response = repo.create(credentials)
 
-    await repo.create(credentials)
-
-    expect(spy).toHaveBeenCalledWith(error)
-
-    spy.mockRestore()
+    expect(response).rejects.toThrow()   
   })
 })

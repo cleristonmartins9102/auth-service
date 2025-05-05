@@ -1,5 +1,5 @@
-import { CreateCredentialModel, CredentialsModel, UserModel } from "../model";
+import { UserModel } from "../model";
 
 export interface CreateCredential {
-  create (credentials: CreateCredentialModel): Promise<{ token: string, refreshToken: string, payload: UserModel }>
+  create (credentials: UserModel): Promise<{ token: string, refreshToken: string, payload: UserModel }>
 }

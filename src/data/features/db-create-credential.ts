@@ -15,7 +15,8 @@ export class DbCreateCredential implements CreateCredential {
       token,
       refreshToken,
       email: userModel.email,
-      password: password
+      password: password,
+      phoneVerified: false
     })
     return {
       token,

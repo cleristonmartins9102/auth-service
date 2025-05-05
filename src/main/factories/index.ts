@@ -1,1 +1,1 @@
-export * from './controllers/generate-token-controller-factory'
+export * from './controllers/create-credential-controller-factory'

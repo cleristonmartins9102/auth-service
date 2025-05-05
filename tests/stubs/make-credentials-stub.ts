@@ -7,5 +7,6 @@ export const makeCredentialsStub = (): CredentialsModel => ({
     refreshToken: faker.database.mongodbObjectId(),
     password: faker.internet.password(),
     id: 1,
-    created_at: new Date()
+    created_at: new Date(),
+    phoneVerified: false
 })
