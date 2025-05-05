@@ -29,6 +29,7 @@ export class CreateCredentialController extends Controller<JSONType, string> {
       name: BuildValidator.string(),
       surname: BuildValidator.string(),
       email: BuildValidator.email(),
+      password: BuildValidator.string(),
       countryDialCode: BuildValidator.string(),
       phoneNumber: BuildValidator.string()
     }) as any
