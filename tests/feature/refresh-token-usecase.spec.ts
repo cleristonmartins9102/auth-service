@@ -64,4 +64,12 @@ describe('RefreshTokenUsecase', () => {
     expect(fsCredentialRepository.update).toHaveBeenCalled()
     expect(fsCredentialRepository.update).toHaveBeenCalledWith(credential.id, { token: 'encryptedValue', refreshToken: 'encryptedValue'})
   })
+
+  it('should returns correct value', async () => {
+    const sut = new RefreshTokenUsecase(fsCredentialRepository, jwtAdapter)
+
+    const response = await sut.refresh('refreshTokenValue')
+
+    expect(response).toEqual({ token: 'encryptedValue', refreshToken: 'encryptedValue'})
+  })
 })
