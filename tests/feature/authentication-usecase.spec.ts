@@ -2,7 +2,7 @@ import mock from "jest-mock-extended/lib/Mock"
 import { faker } from "@faker-js/faker/."
 
 import { CredentialsNotFoundError, WrongPasswordError } from "@/application/errors/errors"
-import { Auth, Decrypt, Compare, GetUserByEmail, Encrypt } from "@/data/domain"
+import { Auth, Decrypt, Compare, GetUserByEmail, Encrypt, RefreshToken } from "@/data/domain"
 import { AuthenticationUseCase } from "@/data/features"
 import { makeCreateUserStub, makeCredentialsStub, makeUserModelStub } from "../../tests/stubs"
 import { GetCredentialsByEmail } from "@/data/domain/get-credentials-by-email"
@@ -11,7 +11,7 @@ import { UserModel } from "@/data/model"
 const credentialModel = makeCredentialsStub()
 
 describe('AuthenticationUseCase', () => {
-  const userService = mock<GetUserByEmail>()
+  const refreshTokenUseCase = mock<RefreshToken>()
   const fsCredentialsRepository = mock<GetCredentialsByEmail>()
   const bcryptAdapter = mock<Compare>()
   const jwtAdapter = mock<Decrypt<UserModel & { iat: number }> & Encrypt<UserModel>>()
@@ -26,17 +26,17 @@ describe('AuthenticationUseCase', () => {
 
   beforeAll(() => {
     fsCredentialsRepository.getByEmail.mockResolvedValue(credentialsStub)
-    userService.getByEmail.mockResolvedValue(mockedUser)
     bcryptAdapter.compare.mockResolvedValue(true)
     fsCredentialsRepository.getByEmail.mockResolvedValue(credentialModel)
     jwtAdapter.decrypt.mockReturnValue({...mockedUser, iat: 3333, })
+    refreshTokenUseCase.refresh.mockResolvedValue({ token: 'fakeToken', refreshToken: 'fakeRefreshToken' })
   })
 
   beforeEach(() => {
     fsCredentialsRepository.getByEmail.mockClear()
     bcryptAdapter.compare.mockClear()
     jwtAdapter.decrypt.mockClear()
-    sut = new AuthenticationUseCase(fsCredentialsRepository, bcryptAdapter, jwtAdapter)
+    sut = new AuthenticationUseCase(fsCredentialsRepository, bcryptAdapter, jwtAdapter, refreshTokenUseCase)
   })
 
   it('should call FsCredentialsRepository with correct email', async () => {
@@ -76,6 +76,13 @@ describe('AuthenticationUseCase', () => {
     await expect(response).rejects.toThrow(WrongPasswordError)
   })
 
+  it('should calls refreshTokenUsecase with correct value', async () => {
+    await sut.auth(credentials)
+
+    expect(refreshTokenUseCase.refresh).toHaveBeenCalled()
+    expect(refreshTokenUseCase.refresh).toHaveBeenCalledWith(credentialModel.refreshToken)
+  })
+
   it('should calls JwtAdapter.decrypt if password match', async () => {
     await sut.auth(credentials)
 
@@ -88,6 +95,6 @@ describe('AuthenticationUseCase', () => {
 
     const response = await sut.auth(credentials)
 
-    expect(response).toEqual({ token: credentialModel.token, refreshToken: credentialModel.refreshToken, payload: { ...withoutPassword, iat: 3333, } })
+    expect(response).toEqual({ token: 'fakeToken', refreshToken: 'fakeRefreshToken', payload: { ...withoutPassword, iat: 3333, } })
   })
 })
