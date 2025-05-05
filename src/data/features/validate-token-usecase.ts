@@ -6,9 +6,10 @@ export class ValidateTokenUsecase {
     private readonly jwtAdapter: Decrypt,
     private readonly refreshTokenUsecase: RefreshToken
   ) {}
-  async validate (token: string, refreshToken: string): Promise<void> {
+  async validate (token: string, refreshToken: string): Promise<any> {
     try {
-      this.jwtAdapter.decrypt(token)
+      const userModel = this.jwtAdapter.decrypt(token)
+      return userModel
     } catch (error) {
       if (error instanceof ExpiredTokenError) {
         await this.refreshTokenUsecase.refresh(refreshToken)
