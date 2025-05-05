@@ -1,6 +1,5 @@
 import { GetCredentialsByRefreshToken, RefreshToken } from "@/data/domain"
 import { RefreshTokenUsecase } from "@/data/features"
-import { FsCredentialRepository } from "@/infra/repository/fs-credential-repository"
 import mock from "jest-mock-extended/lib/Mock"
 
 describe('RefreshTokenUsecase', () => {
@@ -12,5 +11,14 @@ describe('RefreshTokenUsecase', () => {
 
     expect(fsCredentialRepository.getByRefreshToken).toHaveBeenCalled()
     expect(fsCredentialRepository.getByRefreshToken).toHaveBeenCalledWith('refreshTokenValue')
+  })
+
+  it('should throw CredentialNotFoundError if fsCredentialRepository returns null', async () => {
+    fsCredentialRepository.getByRefreshToken.mockResolvedValueOnce(null)
+    const sut = new RefreshTokenUsecase(fsCredentialRepository)
+
+    const response = sut.refresh('refreshTokenValue')
+
+    await expect(response).rejects.toThrow()
   })
 })
