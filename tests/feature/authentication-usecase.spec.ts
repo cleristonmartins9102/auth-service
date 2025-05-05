@@ -2,7 +2,7 @@ import mock from "jest-mock-extended/lib/Mock"
 import { faker } from "@faker-js/faker/."
 
 import { CredentialsNotFoundError, WrongPasswordError } from "@/application/errors/errors"
-import { Auth, Decrypt, Compare, GetUserByEmail } from "@/data/domain"
+import { Auth, Decrypt, Compare, GetUserByEmail, Encrypt } from "@/data/domain"
 import { AuthenticationUseCase } from "@/data/features"
 import { makeCreateUserStub, makeCredentialsStub, makeUserModelStub } from "../../tests/stubs"
 import { GetCredentialsByEmail } from "@/data/domain/get-credentials-by-email"
@@ -14,7 +14,7 @@ describe('AuthenticationUseCase', () => {
   const userService = mock<GetUserByEmail>()
   const fsCredentialsRepository = mock<GetCredentialsByEmail>()
   const bcryptAdapter = mock<Compare>()
-  const jwtAdapter = mock<Decrypt<UserModel & { iat: number }>>()
+  const jwtAdapter = mock<Decrypt<UserModel & { iat: number }> & Encrypt<UserModel>>()
   const createUser = makeCreateUserStub()
   const mockedUser = makeUserModelStub(createUser, 't', 'r')
   const credentialsStub = makeCredentialsStub()
@@ -36,7 +36,7 @@ describe('AuthenticationUseCase', () => {
     fsCredentialsRepository.getByEmail.mockClear()
     bcryptAdapter.compare.mockClear()
     jwtAdapter.decrypt.mockClear()
-    sut = new AuthenticationUseCase(fsCredentialsRepository, userService, bcryptAdapter, jwtAdapter)
+    sut = new AuthenticationUseCase(fsCredentialsRepository, bcryptAdapter, jwtAdapter)
   })
 
   it('should call FsCredentialsRepository with correct email', async () => {
@@ -84,8 +84,10 @@ describe('AuthenticationUseCase', () => {
   })
 
   it('should returns the correct value', async () => {
+    const { password, ...withoutPassword } = mockedUser
+
     const response = await sut.auth(credentials)
 
-    expect(response).toEqual({ token: credentialModel.token, refreshToken: credentialModel.refreshToken, payload: { ...mockedUser, iat: 3333, } })
+    expect(response).toEqual({ token: credentialModel.token, refreshToken: credentialModel.refreshToken, payload: { ...withoutPassword, iat: 3333, } })
   })
 })
