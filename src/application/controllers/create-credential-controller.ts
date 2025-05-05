@@ -1,11 +1,11 @@
 import { JSONType } from "@/data/model";
 import { Controller } from "../contracts/controller";
 import { HttpRequest, HttpResponse } from "../contracts/http";
-import { CreateCredential, Encrypt } from "@/data/domain";
+import { CreateCredential } from "@/data/domain";
 import { ok, serverError } from "../helpers/http";
 import { BuildValidator, Contracts } from "@cleriston.marina/val";
 
-export class GenerateTokenController extends Controller<JSONType, string> {
+export class CreateCredentialController extends Controller<JSONType, string> {
   constructor (private readonly dbCreateCredential: CreateCredential) {
     super()
   }

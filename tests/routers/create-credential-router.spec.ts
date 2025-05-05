@@ -1,7 +1,7 @@
 import { createApp } from '@/main/config/app'
 import request from 'supertest'
 
-describe('Generate Token Router', () => {
+describe('Create Credential Router', () => {
   process.env.SECRET_KEY = '123456'
   it('should returns 400 if missing param name', async () => {
     const httpResponse = await request(createApp())
