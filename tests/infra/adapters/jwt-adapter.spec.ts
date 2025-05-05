@@ -1,13 +1,13 @@
 import { JwtAdapter } from "@/infra/adapters"
-import { faker } from "@faker-js/faker/."
 import jsonwebtoken from 'jsonwebtoken'
+import { makeCreateUserStub, makeUserModelStub } from "../../../tests/stubs"
 
 jest.mock('jsonwebtoken')
 
 describe('JwtAdapter', () => {
-  const payload = { 
-    name: faker.person.firstName()
-  }
+  const createUserStub = makeCreateUserStub()
+  const userModelStub = makeUserModelStub(createUserStub, 'r','r')
+  const payload = userModelStub
   const jsonwebtokenSpy = jest.spyOn(jsonwebtoken, 'sign')
 
   beforeAll(() => {

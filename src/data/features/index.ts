@@ -1,2 +1,2 @@
 export * from './authentication-usecase'
-export * from './db-create-credential-usercase'
+export * from './db-create-credential'

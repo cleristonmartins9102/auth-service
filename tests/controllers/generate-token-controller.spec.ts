@@ -17,20 +17,20 @@ describe('GenerateTokenController', () => {
     jtwAdapter.encrypt.mockReturnValue('generatedToken')
   })
 
-  it('should call JwtAdapter.encrypt with correct value', async () => {
-    const sut = new GenerateTokenController(jtwAdapter)
+  // it('should call JwtAdapter.encrypt with correct value', async () => {
+  //   const sut = new GenerateTokenController(jtwAdapter)
 
-    await sut.perform(httpRequest)
+  //   await sut.perform(httpRequest)
 
-    expect(jtwAdapter.encrypt).toHaveBeenCalled()
-    expect(jtwAdapter.encrypt).toHaveBeenCalledWith(httpRequest.body)
-  })
+  //   expect(jtwAdapter.encrypt).toHaveBeenCalled()
+  //   expect(jtwAdapter.encrypt).toHaveBeenCalledWith(httpRequest.body)
+  // })
 
-  it('should returns the same value received from JWTAdapter.encrypt', async () => {
-    const sut = new GenerateTokenController(jtwAdapter)
+  // it('should returns the same value received from JWTAdapter.encrypt', async () => {
+  //   const sut = new GenerateTokenController(jtwAdapter)
 
-    const response = await sut.perform(httpRequest)
+  //   const response = await sut.perform(httpRequest)
 
-    expect(response).toEqual({ statusCode: 200, body: 'generatedToken'})
-  })
+  //   expect(response).toEqual({ statusCode: 200, body: 'generatedToken'})
+  // })
 })

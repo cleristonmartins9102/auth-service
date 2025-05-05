@@ -1,22 +1,24 @@
-import { CreateCredentialRepository, Encrypt } from "@/data/domain"
-import { DbCreateCredentialUsecase } from "@/data/features"
+import { CreateCredentialRepository, Encrypt, Hash } from "@/data/domain"
+import { DbCreateCredential } from "@/data/features"
 import { UserModel } from "@/data/model"
 import mock from "jest-mock-extended/lib/Mock"
 import { makeCreateUserStub, makeUserModelStub } from "../stubs"
 
 describe('CreateCredential', () => {
   const jtwAdapter = mock<Encrypt<UserModel>>()
+  const bcryptAdapter = mock<Hash>()
   const fsCredentialRepository = mock<CreateCredentialRepository>()
   const createUser = makeCreateUserStub()
   const mockedUser = makeUserModelStub(createUser, 't', 'r')
 
   beforeAll(() => {
     jtwAdapter.encrypt.mockReturnValue('generatedToken')
+    bcryptAdapter.hash.mockResolvedValue('hashedValue')
   })
 
 
   it('should call JwtAdapter.encrypt with correct value', async () => {
-    const sut = new DbCreateCredentialUsecase(jtwAdapter, fsCredentialRepository)
+    const sut = new DbCreateCredential(jtwAdapter, bcryptAdapter, fsCredentialRepository)
 
     await sut.create(mockedUser)
 
@@ -25,7 +27,7 @@ describe('CreateCredential', () => {
   })
 
   it('should call fsCredentialsRepository.create with correct value', async () => {
-    const sut = new DbCreateCredentialUsecase(jtwAdapter, fsCredentialRepository)
+    const sut = new DbCreateCredential(jtwAdapter, bcryptAdapter, fsCredentialRepository)
 
     await sut.create(mockedUser)
 
@@ -34,12 +36,12 @@ describe('CreateCredential', () => {
       token: 'generatedToken',
       refreshToken: 'generatedToken',
       email: mockedUser.email,
-      password: mockedUser.password
+      password: 'hashedValue'
     })
   })
 
   it('should returns correct value', async () => {
-    const sut = new DbCreateCredentialUsecase(jtwAdapter, fsCredentialRepository)
+    const sut = new DbCreateCredential(jtwAdapter, bcryptAdapter, fsCredentialRepository)
 
     const response = await sut.create(mockedUser)
 
