@@ -23,3 +23,9 @@ export class WrongPasswordError extends Error {
     this.name = 'WrongPasswordError'
   }
 }
+export class FirestoreError extends Error {
+  constructor (error: Error) {
+    super(`Firestore error ${error.message}`)
+    this.name = 'FirestoreError'
+  }
+}
