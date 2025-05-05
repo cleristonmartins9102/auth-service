@@ -14,4 +14,19 @@ describe('ValidateTokenUsecase', () => {
     expect(jwtAdapter.decrypt).toHaveBeenCalled()
     expect(jwtAdapter.decrypt).toHaveBeenCalledWith(token)
   })
+
+  it('should call rethrow if JwtAdapter throw', async () => {
+    jwtAdapter.decrypt.mockImplementationOnce(() => {
+      throw new Error()
+    })
+    let error
+    try {
+      const sut = new ValidateTokenUsecase(jwtAdapter)
+      await sut.validate(token)
+    } catch (err) {
+      error = err
+    }
+
+    expect(error).toBeInstanceOf(Error)
+  })
 })
