@@ -1,18 +1,23 @@
 import { ExpiredTokenError } from "@/application/errors/errors"
-import { Decrypt, RefreshToken, ValidateToken } from "@/data/domain"
+import { Decrypt, RefreshToken } from "@/data/domain"
 import { ValidateTokenUsecase } from "@/data/features/validate-token-usecase"
 import mock from "jest-mock-extended/lib/Mock"
+import { makeCreateUserStub, makeUserModelStub } from "../../tests/stubs"
 
 describe('ValidateTokenUsecase', () => {
   const token = 'userToken'
   const refreshToken = 'refreshToken'
   const jwtAdapter = mock<Decrypt>()
   const refreshTokenUsecase = mock<RefreshToken>()
+  const createUser = makeCreateUserStub()
+  const mockedUser = makeUserModelStub(createUser, 't', 'r')  
   let sut: ValidateTokenUsecase
 
   beforeAll(() => {
+    jwtAdapter.decrypt.mockReturnValue({ ...mockedUser, iat: 333, exp: 111 })
     sut = new ValidateTokenUsecase(jwtAdapter, refreshTokenUsecase)
   })
+  
 
   it('should call JwtAdapter.decrypt with correct token', async () => {
     await sut.validate(token, refreshToken)
@@ -45,5 +50,11 @@ describe('ValidateTokenUsecase', () => {
     }
 
     expect(refreshTokenUsecase.refresh).toHaveBeenCalled()
+  })
+
+  it('should return correct value if is a valid token', async () => {
+    const response = await sut.validate(token, refreshToken)
+
+    expect(response).toEqual({ ...mockedUser, iat: 333, exp: 111 })
   })
 })
