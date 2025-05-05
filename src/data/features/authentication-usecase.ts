@@ -2,7 +2,7 @@ import { CredentialsNotFoundError, WrongPasswordError } from "@/application/erro
 import { Auth, Compare, Decrypt, GetCredentialsByEmail, RefreshToken } from "@/data/domain";
 import { UserModel } from "@/data/model";
 
-export class AuthenticationUseCase implements Auth {
+export class AuthenticationUsecase implements Auth {
   constructor (
     private readonly fsCredentialsRepository: GetCredentialsByEmail,
     private readonly bcryptAdapter: Compare,
@@ -14,9 +14,9 @@ export class AuthenticationUseCase implements Auth {
     if (null === credentials) throw new CredentialsNotFoundError('email', params.email)
     const response = await this.bcryptAdapter.compare(params.password, credentials.password)
     if (false === response) throw new WrongPasswordError()
-    await this.refreshTokenUsecase.refresh(credentials.refreshToken)
+    const refreshedTokend = await this.refreshTokenUsecase.refresh(credentials.refreshToken)
     const tokenPayload = this.jwtAdapter.decrypt(credentials.token)
     const { password, ...withoutPassword } = tokenPayload
-    return { token: credentials.token, refreshToken: credentials.refreshToken, payload: withoutPassword }
+    return { token: refreshedTokend.token, refreshToken: refreshedTokend.refreshToken, payload: withoutPassword }
   }
 }
