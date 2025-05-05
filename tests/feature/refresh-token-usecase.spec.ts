@@ -11,6 +11,7 @@ describe('RefreshTokenUsecase', () => {
 
   beforeAll(() => {
     fsCredentialRepository.getByRefreshToken.mockResolvedValue(credential)
+    jwtAdapter.decrypt.mockReturnValueOnce(credential as any)
   })
 
   it('should call fsCredentialRepository.getByRefreshToken', async () => {
@@ -38,5 +39,14 @@ describe('RefreshTokenUsecase', () => {
 
     expect(jwtAdapter.decrypt).toHaveBeenCalled()
     expect(jwtAdapter.decrypt).toHaveBeenCalledWith(credential.token)
+  })
+
+  it('should call JwtAdapter.encrypt with correct token', async () => {
+    const sut = new RefreshTokenUsecase(fsCredentialRepository, jwtAdapter)
+
+    await sut.refresh('refreshTokenValue')
+
+    expect(jwtAdapter.encrypt).toHaveBeenCalled()
+    expect(jwtAdapter.encrypt).toHaveBeenCalledWith(credential)
   })
 })
