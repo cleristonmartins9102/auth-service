@@ -1,1 +1,1 @@
-export * from './generate-token-router'
+export * from './create-credential-router'

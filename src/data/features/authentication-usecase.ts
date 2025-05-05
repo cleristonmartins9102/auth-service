@@ -6,7 +6,7 @@ export class AuthenticationUsecase implements Auth {
   constructor (
     private readonly fsCredentialsRepository: GetCredentialsByEmail,
     private readonly bcryptAdapter: Compare,
-    private readonly jwtAdapter: Decrypt<UserModel & { iat: number }>,
+    private readonly jwtAdapter: Decrypt,
     private readonly refreshTokenUsecase: RefreshToken
   ) {}
   async auth(params: Auth.Params): Promise<Auth.Result> {
@@ -16,7 +16,7 @@ export class AuthenticationUsecase implements Auth {
     if (false === response) throw new WrongPasswordError()
     const refreshedTokend = await this.refreshTokenUsecase.refresh(credentials.refreshToken)
     const tokenPayload = this.jwtAdapter.decrypt(credentials.token)
-    const { password, ...withoutPassword } = tokenPayload
+    const { password, iat, exp, ...withoutPassword } = tokenPayload
     return { token: refreshedTokend.token, refreshToken: refreshedTokend.refreshToken, payload: withoutPassword }
   }
 }

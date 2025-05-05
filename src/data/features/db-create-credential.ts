@@ -8,8 +8,8 @@ export class DbCreateCredential implements CreateCredential {
     private readonly fsCredentialRepository: CreateCredentialRepository
   ) {}
   async create (userModel: UserModel): Promise<{ token: string, refreshToken: string, payload: UserModel }> {
-    const token = this.jwtAdapter.encrypt(userModel)
-    const refreshToken = this.jwtAdapter.encrypt(userModel)
+    const token = this.jwtAdapter.encrypt(userModel, '15m')
+    const refreshToken = this.jwtAdapter.encrypt(userModel, '730h')
     const password = await this.bcryptAdapter.hash(userModel.password)
     await this.fsCredentialRepository.create({
       token,

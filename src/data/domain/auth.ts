@@ -8,7 +8,7 @@ export namespace Auth {
   export type Result = {
     token: string
     refreshToken: string
-    payload: UserModel & { iat: number }
+    payload: Omit<UserModel, 'password'>
   }
   export type Params = {
     email: string

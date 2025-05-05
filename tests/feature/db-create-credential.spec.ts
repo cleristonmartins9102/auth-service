@@ -23,7 +23,7 @@ describe('CreateCredential', () => {
     await sut.create(mockedUser)
 
     expect(jtwAdapter.encrypt).toHaveBeenCalled()
-    expect(jtwAdapter.encrypt).toHaveBeenCalledWith(mockedUser)
+    expect(jtwAdapter.encrypt.mock.calls[0]).toEqual([mockedUser, '15m'])
   })
 
   it('should call fsCredentialsRepository.create with correct value', async () => {

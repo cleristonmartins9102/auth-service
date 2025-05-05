@@ -7,6 +7,6 @@ export class CreateCredentialModel {
 }
 
 export class CredentialsModel extends CreateCredentialModel{
-  id!: number
+  id!: string
   created_at!: Date
 }

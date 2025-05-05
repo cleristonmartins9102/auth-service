@@ -6,7 +6,7 @@ import { makeCredentialsStub } from "../../tests/stubs"
 
 describe('RefreshTokenUsecase', () => {
   const fsCredentialRepository = mock<GetCredentialsByRefreshToken & UpdateCredentialRepository>()
-  const jwtAdapter = mock<Encrypt<UserModel> & Decrypt<UserModel>>()
+  const jwtAdapter = mock<Encrypt<UserModel> & Decrypt>()
   const credential = makeCredentialsStub()
 
   beforeAll(() => {
@@ -16,6 +16,8 @@ describe('RefreshTokenUsecase', () => {
   })
 
   beforeEach(() => {
+    jwtAdapter.decrypt.mockClear()
+    jwtAdapter.encrypt.mockClear()
     fsCredentialRepository.update.mockClear()
     fsCredentialRepository.getByRefreshToken.mockClear()
   })
@@ -38,22 +40,31 @@ describe('RefreshTokenUsecase', () => {
     await expect(response).rejects.toThrow()
   })
 
-  it('should call JwtAdapter.decrypt with correct token', async () => {
+  it('should call JwtAdapter.decrypt with correct refreshToken', async () => {
     const sut = new RefreshTokenUsecase(fsCredentialRepository, jwtAdapter)
 
     await sut.refresh('refreshTokenValue')
 
     expect(jwtAdapter.decrypt).toHaveBeenCalled()
-    expect(jwtAdapter.decrypt).toHaveBeenCalledWith(credential.token)
+    expect(jwtAdapter.decrypt).toHaveBeenCalledWith(credential.refreshToken)
   })
 
-  it('should call JwtAdapter.encrypt with correct token', async () => {
+  it('should call JwtAdapter.encrypt with correct token and expireAt 15m', async () => {
     const sut = new RefreshTokenUsecase(fsCredentialRepository, jwtAdapter)
 
     await sut.refresh('refreshTokenValue')
 
     expect(jwtAdapter.encrypt).toHaveBeenCalled()
-    expect(jwtAdapter.encrypt).toHaveBeenCalledWith(credential)
+    expect(jwtAdapter.encrypt.mock.calls[0]).toEqual([ credential, '15m' ])
+  })
+
+  it('should call JwtAdapter.encrypt with correct token and expireAt 730h', async () => {
+    const sut = new RefreshTokenUsecase(fsCredentialRepository, jwtAdapter)
+
+    await sut.refresh('refreshTokenValue')
+
+    expect(jwtAdapter.encrypt).toHaveBeenCalled()
+    expect(jwtAdapter.encrypt.mock.calls[1]).toEqual([ credential, '730h' ])
   })
 
   it('should call fsCredentialRepository.update with correct token and refreshToken', async () => {

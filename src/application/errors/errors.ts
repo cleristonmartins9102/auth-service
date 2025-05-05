@@ -11,6 +11,12 @@ export class JwtAdapterError extends Error {
     this.name = 'JwtAdapterError'
   }
 }
+export class ExpiredTokenError extends Error {
+  constructor (error: Error) {
+    super(error.message)
+    this.name = 'ExpiredTokenError'
+  }
+}
 export class CredentialsNotFoundError extends Error {
   constructor (fieldName: string, value: string) {
     super(`Cresdentials not found with ${fieldName} ${value}`)

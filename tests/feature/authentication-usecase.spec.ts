@@ -3,7 +3,7 @@ import { faker } from "@faker-js/faker/."
 
 import { CredentialsNotFoundError, WrongPasswordError } from "@/application/errors/errors"
 import { Auth, Decrypt, Compare, GetUserByEmail, Encrypt, RefreshToken } from "@/data/domain"
-import { AuthenticationUseCase } from "@/data/features"
+import { AuthenticationUsecase } from "@/data/features"
 import { makeCreateUserStub, makeCredentialsStub, makeUserModelStub } from "../../tests/stubs"
 import { GetCredentialsByEmail } from "@/data/domain/get-credentials-by-email"
 import { UserModel } from "@/data/model"
@@ -14,7 +14,7 @@ describe('AuthenticationUseCase', () => {
   const refreshTokenUseCase = mock<RefreshToken>()
   const fsCredentialsRepository = mock<GetCredentialsByEmail>()
   const bcryptAdapter = mock<Compare>()
-  const jwtAdapter = mock<Decrypt<UserModel & { iat: number }> & Encrypt<UserModel>>()
+  const jwtAdapter = mock<Decrypt & Encrypt<UserModel>>()
   const createUser = makeCreateUserStub()
   const mockedUser = makeUserModelStub(createUser, 't', 'r')
   const credentialsStub = makeCredentialsStub()
@@ -28,7 +28,7 @@ describe('AuthenticationUseCase', () => {
     fsCredentialsRepository.getByEmail.mockResolvedValue(credentialsStub)
     bcryptAdapter.compare.mockResolvedValue(true)
     fsCredentialsRepository.getByEmail.mockResolvedValue(credentialModel)
-    jwtAdapter.decrypt.mockReturnValue({...mockedUser, iat: 3333, })
+    jwtAdapter.decrypt.mockReturnValue({...mockedUser, iat: 3333, exp: 222 })
     refreshTokenUseCase.refresh.mockResolvedValue({ token: 'fakeToken', refreshToken: 'fakeRefreshToken' })
   })
 
@@ -36,7 +36,7 @@ describe('AuthenticationUseCase', () => {
     fsCredentialsRepository.getByEmail.mockClear()
     bcryptAdapter.compare.mockClear()
     jwtAdapter.decrypt.mockClear()
-    sut = new AuthenticationUseCase(fsCredentialsRepository, bcryptAdapter, jwtAdapter, refreshTokenUseCase)
+    sut = new AuthenticationUsecase(fsCredentialsRepository, bcryptAdapter, jwtAdapter, refreshTokenUseCase)
   })
 
   it('should call FsCredentialsRepository with correct email', async () => {
@@ -95,6 +95,6 @@ describe('AuthenticationUseCase', () => {
 
     const response = await sut.auth(credentials)
 
-    expect(response).toEqual({ token: 'fakeToken', refreshToken: 'fakeRefreshToken', payload: { ...withoutPassword, iat: 3333, } })
+    expect(response).toEqual({ token: 'fakeToken', refreshToken: 'fakeRefreshToken', payload: withoutPassword })
   })
 })
