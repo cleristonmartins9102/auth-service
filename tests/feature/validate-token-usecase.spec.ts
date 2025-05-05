@@ -15,6 +15,8 @@ describe('ValidateTokenUsecase', () => {
 
   beforeAll(() => {
     jwtAdapter.decrypt.mockReturnValue({ ...mockedUser, iat: 333, exp: 111 })
+    refreshTokenUsecase.refresh.mockResolvedValue({ token: 'newToken', refreshToken: 'newRefreshToken'})
+
     sut = new ValidateTokenUsecase(jwtAdapter, refreshTokenUsecase)
   })
   
@@ -55,6 +57,15 @@ describe('ValidateTokenUsecase', () => {
   it('should return correct value if is a valid token', async () => {
     const response = await sut.validate(token, refreshToken)
 
-    expect(response).toEqual({ ...mockedUser, iat: 333, exp: 111 })
+    expect(response).toEqual({ token, refreshToken, payload: { ...mockedUser, iat: 333, exp: 111 }})
+  })
+
+  it('should return correct value if is a invalid token and refreshed', async () => {
+    jwtAdapter.decrypt.mockImplementationOnce(() => {
+      throw new ExpiredTokenError(new Error())
+    })
+    const response = await sut.validate(token, refreshToken)
+
+    expect(response).toEqual({ token: 'newToken', refreshToken: 'newRefreshToken', payload: { ...mockedUser, iat: 333, exp: 111 } })
   })
 })
