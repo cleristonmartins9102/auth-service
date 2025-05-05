@@ -21,7 +21,7 @@ describe('JwtAdapter', () => {
   it('should call jsonwebtoken.sign with correct values', () => {
     const sut = new JwtAdapter()
 
-    sut.encrypt(payload)
+    sut.encrypt(payload, '1h')
 
     expect(jsonwebtokenSpy).toHaveBeenCalled()
     expect(jsonwebtokenSpy).toHaveBeenCalledWith(payload, '123456', { expiresIn: '1h' })
@@ -30,7 +30,7 @@ describe('JwtAdapter', () => {
   it('should return the same value received from jsonwebtoken.sign', () => {
     const sut = new JwtAdapter()
 
-    const response = sut.encrypt(payload)
+    const response = sut.encrypt(payload, '1h')
 
     expect(response).toBe('mockedToken')
   })
@@ -41,7 +41,7 @@ describe('JwtAdapter', () => {
     
     let error = null
     try {
-      sut.encrypt(payload)
+      sut.encrypt(payload, '1h')
     } catch(err) {
       error = err
     }
@@ -56,7 +56,7 @@ describe('JwtAdapter', () => {
     
     let error = null
     try {
-      sut.encrypt(payload)
+      sut.encrypt(payload, '1h')
     } catch(err) {
       error = err
     }
