@@ -1,5 +1,5 @@
 import { Express, Router } from 'express'
-import { generateTokenRouter } from '../routers'
+import { generateTokenRouter, validateTokenRouter } from '../routers'
 import { authenticationRouter } from '../routers/authentication-router'
 
 export const setupRouter = (app: Express): void => {
@@ -7,4 +7,5 @@ export const setupRouter = (app: Express): void => {
   app.use('/api', router)
   generateTokenRouter(router)
   authenticationRouter(router)
+  validateTokenRouter(router)
 }
