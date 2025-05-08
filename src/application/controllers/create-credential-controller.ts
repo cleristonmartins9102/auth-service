@@ -3,7 +3,7 @@ import { Controller } from "../contracts/controller";
 import { HttpRequest, HttpResponse } from "../contracts/http";
 import { CreateCredential } from "@/data/domain";
 import { ok, serverError } from "../helpers/http";
-import { BuildValidator, Contracts } from "@cleriston.marina/val";
+import { BuildValidator, Contracts } from "@cleriston.marina/validator";
 
 export class CreateCredentialController extends Controller<JSONType, string> {
   constructor (private readonly dbCreateCredential: CreateCredential) {

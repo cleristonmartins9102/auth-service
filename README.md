@@ -73,10 +73,9 @@ auth-service/
 - `jsonwebtoken`
 - `bcrypt`
 - `@google-cloud/firestore`
-- `@faker-js/faker`
 - `module-alias`
 - `path-alias`
-- `@cleriston.marina/val`
+- `@cleriston.marina/validator`
 
 ### Development
 - `typescript`
@@ -85,6 +84,7 @@ auth-service/
 - `jest`
 - `ts-jest`
 - `supertest`
+- `@faker-js/faker`
 - `jest-mock-extended`
 - `@types/*` packages
 
