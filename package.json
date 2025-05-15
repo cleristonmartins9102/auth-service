@@ -8,7 +8,7 @@
     "test": "jest --runInBand --no-cache --passWithNoTests --coverage false",
     "test:watch": "npm run test -- watch",
     "build": "tsc -p tsconfig-build.json",
-    "deploy": "npm i && copyfiles tsconfig-build.json build && npm run build && copyfiles package.json build"
+    "deploy": "npm i && npm run build && copyfiles package.json build"
   },
   "keywords": [],
   "author": "",
