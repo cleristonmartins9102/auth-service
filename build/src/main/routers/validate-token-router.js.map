@@ -1,1 +1,0 @@
-{"version":3,"file":"validate-token-router.js","sourceRoot":"","sources":["../../../../src/main/routers/validate-token-router.ts"],"names":[],"mappings":";;;AAAA,sEAAkE;AAElE,kHAA2G;AAEpG,MAAM,mBAAmB,GAAG,CAAC,MAAc,EAAQ,EAAE;IAC1D,MAAM,CAAC,IAAI,CAAC,gBAAgB,EAAE,IAAA,gCAAc,EAAC,IAAA,kEAA8B,GAAE,CAAC,CAAC,CAAA;AACjF,CAAC,CAAA;AAFY,QAAA,mBAAmB,uBAE/B"}
