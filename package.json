@@ -7,8 +7,7 @@
     "start:dev": "ts-node-dev src/main/server.ts",
     "test": "jest --runInBand --no-cache --passWithNoTests --coverage false",
     "test:watch": "npm run test -- watch",
-    "build": "tsc -p tsconfig-build.json",
-    "deploy": "npm i && npm run build && copyfiles package.json build"
+    "build": "tsc -p tsconfig-build.json"
   },
   "keywords": [],
   "author": "",
