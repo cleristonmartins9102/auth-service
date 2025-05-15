@@ -7,7 +7,7 @@
     "test": "jest --runInBand --no-cache --passWithNoTests --coverage false",
     "test:watch": "npm run test -- watch",
     "build": "tsc --build",
-    "deploy": "npm run install && npm run build"
+    "deploy": "npm i && npm run build"
   },
   "keywords": [],
   "author": "",
